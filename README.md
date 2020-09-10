@@ -1,28 +1,31 @@
-# Assignment: Compose For On-The-Fly Image Building and Multi-Container Testing
+## Docker Assignment-1: 
+#  Create a data pipeline architecture using docker-compose yaml file.
+#  Intially architecture comprise of following services:
+#  1. Airflow
+#  2. MySql
 
-Goal: This time imagine you're just wanting to learn Drupal's admin and GUI, or maybe you're a software tester and you need to test a new theme for Drupal. When configured properly, this will let you build a custom image and start everything with `docker-compose up` including storing important db and config data in volumes so the site will remember your changes across Compose restarts.
+Goal: To create a simple pipeline using airflow which should copy the file from a web location and place it in the local folder.
 
-- Use the compose file you created in the last assignment (drupal and postgres) as a starting point.
-- Let's pin image version from Docker Hub this time. It's always a good idea to do that so a new major version doesn't surprise you.
+Airflow Service
+- Must have a bind mount for airflow home. So that dags can be modified and airflow can be configured from the local folder.
+- Must be able to communicate to the MySQL server to work with LocalExecutor
+- Must be able to expose port 8080 to access the airflow web ui
 
-## Dockerfile
-- First you need to build a custom Dockerfile in this directory, `FROM drupal:8.8.2` NOTE: if it fails to build, try the lastest 8 branch version with `FROM drupal:8`
-- Then RUN apt package manager command to install git: `apt-get update && apt-get install -y git`
-- Remember to cleanup after your apt install with `rm -rf /var/lib/apt/lists/*` and use `\` and `&&` properly. You can find examples of them in drupal official image. More on this below under Compose file.
-- Then change `WORKDIR /var/www/html/themes`
-- Then use git to clone the theme with: `RUN git clone --branch 8.x-3.x --single-branch --depth 1 https://git.drupal.org/project/bootstrap.git`
-- Combine that line with this line, as we need to change permissions on files and don't want to use another image layer to do that (it creates size bloat). This drupal container runs as www-data user but the build actually runs as root, so often we have to do things like `chown` to change file owners to the proper user: `chown -R www-data:www-data bootstrap`. Remember the first line needs a `\` at end to signify the next line is included in the command, and at start of next line you should have `&&` to signify "if first command succeeds then also run this command"
-- Then, just to be safe, change the working directory back to its default (from drupal image) at `/var/www/html`
+MySQL Service
+- On new image creation it must have a database named `airflow`
+- It also must have a new user name and password as `airflow` for the airflow service to communicate
 
-## Compose File
-- We're going to build a custom image in this compose file for drupal service. Use Compose file from previous assignment for Drupal to start with, and we'll add to it, as well as change image name.
-- Rename image to `custom-drupal` as we want to make a new image based on the official `drupal:8.8.2`.
-- We want to build the default Dockerfile in this directory by adding `build: .` to the `drupal` service. When we add a build + image value to a compose service, it knows to use the image name to write to in our image cache, rather then pull from Docker Hub.
-- For the `postgres:12.1` service, you need the same password as in previous assignment, but also add a volume for `drupal-data:/var/lib/postgresql/data` so the database will persist across Compose restarts.
 
-## Start Containers, Configure Drupal
-- Start containers like before, configure Drupal web install like before.
-- After website comes up, click on `Appearance` in top bar, and notice a new theme called `Bootstrap` is there. That's the one we added with our custom Dockerfile.
-- Click `Install and set as default`. Then click `Back to site` (in top left) and the website interface should look different. You've successfully installed and activated a new theme in your own custom image without installing anything on your host other then Docker!
-- If you exit (ctrl-c) and then `docker-compose down` it will delete containers, but not the volumes, so on next `docker-compose up` everything will be as it was.
-- To totally clean up volumes, add `-v` to `down` command.
+## Airflow Assignment-1:
+#  Create a dag for a pipeline to copy the file from the web location to the destination
+
+Goal: To create the initial version of the pipeline where ingestion of the data will take place
+
+List of Dags
+- ingest-school-demo-student-demographics
+- ingest-public-school-enrollment
+- ingest-private-school-contact
+
+- These dags must use the local executor to ingest these files from the following location to the local repository
+- Once these files are copied. The data must be imported to the mysql server in the tables. 
+- After the data is imported, airflow must send the email to the user on the status of the ingestion.
