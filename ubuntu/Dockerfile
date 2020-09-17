@@ -2,7 +2,7 @@ FROM ubuntu
 
 RUN apt-get update
 
-RUN apt-get install -y   git && apt-get install -y vim
+RUN apt-get install -y git && apt-get install -y vim
 
 # Command to run the container 
 # docker run -it --rm --name access-volumes -v airflow:/airflow ubuntuvim /bin/bash
