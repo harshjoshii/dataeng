@@ -1,0 +1,80 @@
+version: '3.8'
+services:
+  mysql:
+    build: 
+      context: ./mysql
+    image: harshjoshi211/mysql
+    ports: 
+      - "3306:3306"
+    container_name: mysql
+    command: --explicit_defaults_for_timestamp=1 --default-authentication-plugin=mysql_native_password
+    environment: 
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=airflow_mdb
+      - MYSQL_USER=airflow
+      - MYSQL_PASSWORD=airflow
+    volumes:  
+      - mysql:/var/lib/mysql    
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=root123 --execute \"SHOW DATABASES;\""
+      interval: 10s
+      timeout: 50s
+      retries: 5
+
+  airflow-webserver:
+    build: 
+      context: ./airflow
+    image: harshjoshi211/airflow
+    ports:
+      - "8080:8080"
+    container_name: airflow-webserver
+    command: webserver
+    depends_on: 
+      - mysql
+    volumes: 
+      - airflow:/opt/airflow
+  
+  airflow-scheduler:
+    build: 
+      context: ./airflow
+    image: harshjoshi211/airflow
+    container_name: airflow-scheduler
+    command: scheduler
+    depends_on: 
+      - airflow-webserver
+    volumes: 
+      - airflow:/opt/airflow
+
+  spark-master:
+    image: bde2020/spark-master:3.0.0-hadoop3.2
+    container_name: spark-master
+    ports:
+      - "8082:8080"
+      - "7077:7077"
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+      - "constraint:node==spark-master"
+  spark-30.worker-1:
+    image: bde2020/spark-worker:3.0.0-hadoop3.2
+    container_name: spark-worker-1
+    depends_on:
+      - spark-master
+    ports:
+      - "8083:8081"
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+      - "constraint:node==spark-worker-1"
+  spark-worker-2:
+    image: bde2020/spark-worker:3.0.0-hadoop3.2
+    container_name: spark-worker-2
+    depends_on:
+      - spark-master
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+      - "constraint:node==spark-worker-2"  
+
+volumes: 
+  mysql:
+    external: true
+  airflow:
+    external: true
