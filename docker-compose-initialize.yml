@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  mysql:
+    build: 
+      context: ./mysql
+    image: harshjoshi211/mysql
+    ports: 
+      - "3306:3306"
+    container_name: mysql
+    command: --explicit_defaults_for_timestamp=1 --default-authentication-plugin=mysql_native_password
+    environment: 
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=airflow_mdb
+      - MYSQL_USER=airflow
+      - MYSQL_PASSWORD=airflow
+    volumes:  
+      - mysql:/var/lib/mysql    
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=root123 --execute \"SHOW DATABASES;\""
+      interval: 10s
+      timeout: 50s
+      retries: 5 
+  
+  airflow-init:
+    build: 
+      context: ./airflow
+    image: harshjoshi211/airflow
+    container_name: airflow-init
+    command: initdb
+    depends_on: 
+      - mysql
+    volumes: 
+      - airflow:/opt/airflow
+
+volumes: 
+  mysql:
+    external: true
+  airflow:
+    external: true
