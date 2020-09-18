@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Initialization started"
-echo "It takes longer for very first run. Please wait for few minutes! "
+echo "It takes longer if it is a very first run. Please wait for few minutes! "
 
 echo -ne "Creating Docker volumes ..."
 docker volume create mysql &> /dev/null && \
