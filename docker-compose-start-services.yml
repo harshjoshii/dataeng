@@ -14,7 +14,8 @@ services:
       - MYSQL_USER=airflow
       - MYSQL_PASSWORD=airflow
     volumes:  
-      - mysql:/var/lib/mysql    
+      - mysql:/var/lib/mysql
+      - shared-volume:/shared-volume    
     healthcheck:
       test: "/usr/bin/mysql --user=root --password=root123 --execute \"SHOW DATABASES;\""
       interval: 10s
@@ -33,6 +34,7 @@ services:
       - mysql
     volumes: 
       - airflow:/opt/airflow
+      - shared-volume:/shared-volume 
   
   airflow-scheduler:
     build: 
@@ -44,6 +46,7 @@ services:
       - airflow-webserver
     volumes: 
       - airflow:/opt/airflow
+      - shared-volume:/shared-volume 
 
   spark-master:
     image: bde2020/spark-master:3.0.0-hadoop3.2
@@ -77,4 +80,6 @@ volumes:
   mysql:
     external: true
   airflow:
+    external: true
+  shared-volume:
     external: true
