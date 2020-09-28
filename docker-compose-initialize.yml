@@ -45,6 +45,12 @@ volumes:
     external: true
   shared-volume:
     external: true
+  hadoop_namenode:
+    external: true
+  hadoop_datanode:
+    external: true
+  hadoop_historyserver:
+    external: true
 
 networks: 
   dataeng:
