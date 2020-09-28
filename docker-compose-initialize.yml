@@ -20,7 +20,9 @@ services:
       test: "/usr/bin/mysql --user=root --password=root123 --execute \"SHOW DATABASES;\""
       interval: 10s
       timeout: 50s
-      retries: 5 
+      retries: 5
+    networks: 
+      - dataeng
   
   airflow-init:
     build: 
@@ -33,6 +35,8 @@ services:
     volumes: 
       - airflow:/opt/airflow
       - shared-volume:/shared-volume 
+    networks: 
+      - dataeng
 
 volumes: 
   mysql:
@@ -40,4 +44,8 @@ volumes:
   airflow:
     external: true
   shared-volume:
+    external: true
+
+networks: 
+  dataeng:
     external: true

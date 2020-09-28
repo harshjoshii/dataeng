@@ -7,7 +7,12 @@ echo -ne "Creating Docker volumes ..."
 docker volume create mysql &>> log/initialize.log && \
 docker volume create airflow &>> log/initialize.log && \
 docker volume create shared-volume &>> log/initialize.log && \
-echo  -e "\\rCreating Docker volumes ... \e[32mdone\e[0m" && \
+echo  -e "\\rCreating Docker volumes ... \e[32mdone\e[0m"
+
+echo -ne "Creating Network ..."
+docker network create --attachable --driver overlay dataeng &>> log/initialize.log && \
+echo  -e "\\rCreating Network ... \e[32mdone\e[0m"
+
 echo -ne "\\rInitializing sequential executor ..."
 docker-compose -f docker-compose-initialize.yml up -d &>> log/initialize.log
 
