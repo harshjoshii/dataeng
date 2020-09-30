@@ -1,4 +1,5 @@
-FROM apache/airflow:2
+
+FROM apache/airflow
 
 USER root
 
@@ -19,6 +20,8 @@ RUN sed -i "\$a exec dockerize -wait tcp://mysql:3306 -timeout 300s -wait-retry-
 WORKDIR /opt/airflow
 
 USER airflow
+
+RUN pip install --user hdfs
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/entrypoint"]
 
