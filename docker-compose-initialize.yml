@@ -15,7 +15,7 @@ services:
       - MYSQL_PASSWORD=airflow
     volumes:  
       - mysql:/var/lib/mysql   
-      - shared-volume:/shared-volume  
+      - shared_volume:/shared_volume  
     healthcheck:
       test: "/usr/bin/mysql --user=root --password=root123 --execute \"SHOW DATABASES;\""
       interval: 10s
@@ -34,7 +34,7 @@ services:
       - mysql
     volumes: 
       - airflow:/opt/airflow
-      - shared-volume:/shared-volume 
+      - shared_volume:/shared_volume 
     networks: 
       - dataeng
 
@@ -43,7 +43,7 @@ volumes:
     external: true
   airflow:
     external: true
-  shared-volume:
+  shared_volume:
     external: true
   hadoop_namenode:
     external: true
