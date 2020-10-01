@@ -3,7 +3,7 @@ FROM apache/airflow
 
 USER root
 
-RUN sudo apt-get update && apt-get install -y wget
+RUN sudo apt-get update && apt-get install -y --no-install-recommends wget gcc g++
 
 ENV DOCKERIZE_VERSION v0.6.1
 
@@ -21,7 +21,8 @@ WORKDIR /opt/airflow
 
 USER airflow
 
-RUN pip install --user hdfs
+RUN pip install --user --upgrade pip  \
+    && pip install --user python-csv hdfs xlrd3
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/entrypoint"]
 
