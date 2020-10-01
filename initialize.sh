@@ -78,8 +78,8 @@ do
 done
 
 echo -n "Creating directory in shared volume ..."
-docker container run --rm -v shared_folder:/shared_folder ubuntuvim mkdir -p /shared_folder/ontario-school-data &>> log/initialize.log && \
-docker container run --rm -v shared_folder:/shared_folder ubuntuvim chmod +666 /shared_folder/ontario-school-data &>> log/initialize.log && \
+docker container run --rm -v shared_volume:/shared_volume ubuntuvim mkdir -p /shared_volume/ontario_school_data &>> log/initialize.log && \
+docker container run --rm -v shared_volume:/shared_volume ubuntuvim chmod +666 /shared_volume/ontario_school_data &>> log/initialize.log && \
 echo -e "\\rCreating directory in shared volume ... \e[32mdone\e[0m" || \
 echo -e "\\rCreating directory in shared volume ... \e[31merror\e[0m"
 
