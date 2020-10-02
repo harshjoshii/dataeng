@@ -34,42 +34,32 @@ with DAG('ingest_data',
                                                             bash_command='wget -O ' + shared_volume_path + public_school_contact_info_dllink.split("/")[-1] + ' ' + public_school_contact_info_dllink)
         download_private_school_contact_info = BashOperator(task_id='download_private_school_contact_info', \
                                                             bash_command='wget -O ' + shared_volume_path + private_school_contact_info_dlink.split("/")[-1] + ' ' + private_school_contact_info_dlink)
-        download_academic_year = BashOperator(task_id='download_academic_year', \
-                                                bash_command='wget -O ' + shared_volume_path+ academic_year_dlink.split("/")[-1] + ' ' + academic_year_dlink)
-        download_school_info_student_demographics = BashOperator(task_id='download_school_info_student_demographics', \
-                                                                    bash_command='wget -O ' + shared_volume_path + school_info_student_demographics_dlink.split("/")[-1] + ' ' + school_info_student_demographics_dlink)
         
         # Upload files to HDFS
         upload_school_board_school_authority_contact = PythonOperator(task_id='upload_school_board_school_authority_contact', \
                                                                         python_callable=upload_to_hdfs, \
-                                                                        op_kwargs={'file_name': school_board_school_authority_contact_dlink.split("/")[-1], \
+                                                                        op_kwargs={'file_name': school_board_school_authority_contact_dlink.split("/")[-1].split(".")[0]+".csv", \
                                                                                     'file_path': shared_volume_path, \
                                                                                     'hdfs_path': hdfs_path}, \
                                                                         dag=dag)
         upload_public_school_contact_info = PythonOperator(task_id='upload_public_school_contact_info', \
                                                             python_callable=upload_to_hdfs, \
-                                                            op_kwargs={'file_name': public_school_contact_info_dllink.split("/")[-1], \
+                                                            op_kwargs={'file_name': public_school_contact_info_dllink.split("/")[-1].split(".")[0]+".csv", \
                                                                         'file_path': shared_volume_path, \
                                                                         'hdfs_path': hdfs_path}, \
                                                             dag=dag)
         upload_private_school_contact_info = PythonOperator(task_id='upload_private_school_contact_info', \
                                                             python_callable=upload_to_hdfs, \
-                                                            op_kwargs={'file_name': private_school_contact_info_dlink.split("/")[-1], \
+                                                            op_kwargs={'file_name': private_school_contact_info_dlink.split("/")[-1].split(".")[0]+".csv", \
                                                                         'file_path': shared_volume_path, \
                                                                         'hdfs_path': hdfs_path}, \
                                                             dag=dag)
-        upload_academic_year = PythonOperator(task_id='upload_academic_year_dlink', \
-                                                python_callable=upload_to_hdfs, \
-                                                op_kwargs={'file_name': academic_year_dlink.split("/")[-1], \
+        upload_private_school_contact_info_s1 = PythonOperator(task_id='upload_private_school_contact_info_s1', \
+                                                            python_callable=upload_to_hdfs, \
+                                                            op_kwargs={'file_name': private_school_contact_info_dlink.split("/")[-1].split(".")[0]+"_s1.csv", \
                                                                         'file_path': shared_volume_path, \
                                                                         'hdfs_path': hdfs_path}, \
-                                                dag=dag)
-        upload_school_info_student_demographics = PythonOperator(task_id='upload_school_info_student_demographics', \
-                                                                    python_callable=upload_to_hdfs, \
-                                                                    op_kwargs={'file_name': school_info_student_demographics_dlink.split("/")[-1], \
-                                                                        'file_path': shared_volume_path, \
-                                                                        'hdfs_path': hdfs_path}, \
-                                                                    dag=dag)
+                                                            dag=dag)
 
         # Convert xls file to csv
         convert_school_board_school_authority_contact = PythonOperator(task_id='convert_school_board_school_authority_contact', \
@@ -93,19 +83,8 @@ with DAG('ingest_data',
                                                                         op_kwargs={'xlsx_file': shared_volume_path + private_school_contact_info_dlink.split("/")[-1], \
                                                                             'sheet_index' : 1, 'csv_file': shared_volume_path + private_school_contact_info_dlink.split("/")[-1].split(".")[0]+"_s1.csv"}, \
                                                                         dag=dag) 
-        convert_academic_year = PythonOperator(task_id='convert_academic_year', \
-                                                                        python_callable=csv_from_excel, \
-                                                                        op_kwargs={'xlsx_file': shared_volume_path + academic_year_dlink.split("/")[-1], \
-                                                                            'sheet_index' : 0, 'csv_file': shared_volume_path + academic_year_dlink.split("/")[-1].split(".")[0]+".csv"}, \
-                                                                        dag=dag)
-        convert_school_info_student_demographics = PythonOperator(task_id='convert_school_info_student_demographics', \
-                                                                        python_callable=csv_from_excel, \
-                                                                        op_kwargs={'xlsx_file': shared_volume_path + school_info_student_demographics_dlink.split("/")[-1], \
-                                                                            'sheet_index' : 0, 'csv_file': shared_volume_path + school_info_student_demographics_dlink.split("/")[-1].split(".")[0]+".csv"}, \
-                                                                        dag=dag)
         
-        download_school_board_school_authority_contact >> upload_school_board_school_authority_contact >> convert_school_board_school_authority_contact
-        download_public_school_contact_info >> upload_public_school_contact_info >> convert_public_school_contact_info
-        download_private_school_contact_info >> upload_private_school_contact_info >> convert_private_school_contact_info >> convert_private_school_contact_info_s1
-        download_academic_year >> upload_academic_year >> convert_academic_year
-        download_school_info_student_demographics >> upload_school_info_student_demographics >> convert_school_info_student_demographics
+        download_school_board_school_authority_contact >> convert_school_board_school_authority_contact >> upload_school_board_school_authority_contact
+        download_public_school_contact_info >> convert_public_school_contact_info >> upload_public_school_contact_info
+        download_private_school_contact_info >> convert_private_school_contact_info >> upload_private_school_contact_info
+        download_private_school_contact_info >> convert_private_school_contact_info_s1 >> upload_private_school_contact_info_s1
