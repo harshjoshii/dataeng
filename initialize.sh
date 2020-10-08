@@ -4,8 +4,8 @@ echo "Initialization started!"
 echo -ne "Creating files and variables ..."
 mkdir -p log &>> log/initialize.log && \
 touch log/initialize.log &>> log/initialize.log && \
-export DOCKER_CLIENT_TIMEOUT=120 &>> log/initialize.log && \
-export COMPOSE_HTTP_TIMEOUT=120 &>> log/initialize.log && \
+export DOCKER_CLIENT_TIMEOUT=200 &>> log/initialize.log && \
+export COMPOSE_HTTP_TIMEOUT=200 &>> log/initialize.log && \
 echo  -e "\\rCreating files and variables ... \e[32mdone\e[0m" || \
 echo  -e "\\rCreating files and variables ... \e[31merror\e[0m"
 
