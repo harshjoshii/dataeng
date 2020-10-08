@@ -59,11 +59,20 @@ def transform_private_schools_contact_information_s1():
         spark = GenericSparkOperations(spark_master, app_name)
 
         print("Reading file...")
-        df = spark.read_file(shared_volume_path, files['prsc1'])
+        df = spark.read_file(shared_volume_path, files['prscs1'])
         print("Reading complete")
+
+        df_website_added = df.withColumn('WebsiteN', format_website_link(col('Website')))
+        df_school_website_removed = df_website_added.drop('Website')
+        df_school_website_renamed = df_posdf_school_website_removed.withColumnRenamed('WebsiteN', 'Website')
+
+        print("Writing file...")
+        spark.create_file(shared_volume_path, files['prscs1'].split(".")[0]+"_transformed.csv", df_school_website_renamed)
+        print("Writing complete")
 
         spark.stop()
 
 
 # transform_private_schools_contact_information_s1()
 transform_private_schools_contact_information()
+transform_private_schools_contact_information_s1()
