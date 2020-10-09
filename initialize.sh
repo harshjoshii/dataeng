@@ -77,11 +77,13 @@ do
     sleep 10s
 done
 
-echo -n "Creating directory in shared volume ..."
+echo -n "Creating directories in shared volume ..."
 docker container run --rm -v shared_volume:/shared_volume ubuntuvim mkdir -p /shared_volume/ontario_school_data &>> log/initialize.log && \
 docker container run --rm -v shared_volume:/shared_volume ubuntuvim chmod +666 /shared_volume/ontario_school_data &>> log/initialize.log && \
-echo -e "\\rCreating directory in shared volume ... \e[32mdone\e[0m" || \
-echo -e "\\rCreating directory in shared volume ... \e[31merror\e[0m"
+docker container run --rm -v shared_volume:/shared_volume ubuntuvim mkdir -p /shared_volume/transforms &>> log/initialize.log && \
+docker container run --rm -v shared_volume:/shared_volume ubuntuvim chmod +666 /shared_volume/transforms &>> log/initialize.log && \
+echo -e "\\rCreating directories in shared volume ... \e[32mdone\e[0m" || \
+echo -e "\\rCreating directories in shared volume ... \e[31merror\e[0m"
 
 echo "Initialization complete!"
 
