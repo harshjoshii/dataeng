@@ -8,7 +8,7 @@ spark_master = "spark://spark-master:7077"
 
 files = {"pubsc": "publicly_funded_schools_xlsx_september_2020_en.csv"}
 
-def transform_private_schools_contact_information():
+def transform_public_schools_contact_information():
         
         app_name = "Public Schools Info Transformation"
         spark = GenericSparkOperations(spark_master, app_name)
@@ -43,4 +43,4 @@ def transform_private_schools_contact_information():
 
         spark.stop()
 
-transform_private_schools_contact_information()
+transform_public_schools_contact_information()
