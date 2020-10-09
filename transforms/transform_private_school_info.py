@@ -1,8 +1,5 @@
-import os
-import re
 from pyspark.sql import SparkSession
-from pyspark.sql import Row
-from pyspark.sql.functions import col, udf
+from pyspark.sql.functions import col
 from pyspark.sql.types import StringType
 from pyspark_lib import GenericSparkOperations, format_website_link, extract_street_number
 from pyspark_lib import extract_street_name, format_postal_code, format_string_to_title_case
@@ -47,13 +44,12 @@ def transform_private_schools_contact_information():
         df_principal_name_renamed = df_principal_name_removed.withColumnRenamed('PrincipalName', 'Principal Name')
         
         print("Writing file...")
-        spark.create_file(shared_volume_path, files['prsc'].split(".")[0]+"_transformed.csv", df_principal_name_renamed)
+        spark.create_file(shared_volume_path, files['prsc'].split(".")[0]+"_transformed", df_principal_name_renamed)
         print("Writing complete")
 
         spark.stop()
 
 # Cleaning and Transformation steps for private_schools_contact_information_september_2020_en_s1
-# 1. Website column should all be starting with www.
 def transform_private_schools_contact_information_s1():
         app_name = "Private Schools Info S1 Transformation"
         spark = GenericSparkOperations(spark_master, app_name)
@@ -62,9 +58,10 @@ def transform_private_schools_contact_information_s1():
         df = spark.read_file(shared_volume_path, files['prscs1'])
         print("Reading complete")
 
+        # 1. Website column should all be starting with www.
         df_website_added = df.withColumn('WebsiteN', format_website_link(col('Website')))
         df_school_website_removed = df_website_added.drop('Website')
-        df_school_website_renamed = df_posdf_school_website_removed.withColumnRenamed('WebsiteN', 'Website')
+        df_school_website_renamed = df_school_website_removed.withColumnRenamed('WebsiteN', 'Website')
 
         print("Writing file...")
         spark.create_file(shared_volume_path, files['prscs1'].split(".")[0]+"_transformed.csv", df_school_website_renamed)
@@ -72,7 +69,5 @@ def transform_private_schools_contact_information_s1():
 
         spark.stop()
 
-
-# transform_private_schools_contact_information_s1()
 transform_private_schools_contact_information()
 transform_private_schools_contact_information_s1()
