@@ -38,19 +38,19 @@ def format_website_link(link):
     link = str(link).lower()
     if not re.search("^www.", link) and link != "None":
             if re.search("^http://", link):
-                    sp = re.split("^http://", link)
-                    if not re.search("^www.", sp[1]):
-                            return "www." + sp[1]
-                    else:
-                            return sp[1]
+                sp = re.split("^http://", link)
+                if not re.search("^www.", sp[1]):
+                        return "www." + sp[1]
+                else:
+                        return sp[1]
             elif re.search("^https://", link):
                 sp = re.split("^https://", link)
-                    if not re.search("^www.", sp[1]):
-                            return "www." + sp[1]
-                    else:
-                            return sp[1]            
+                if not re.search("^www.", sp[1]):
+                        return "www." + sp[1]
+                else:
+                        return sp[1]            
             else:
-                    return "www." + link
+                return "www." + link
     return link
 
 @udf(returnType=StringType())
