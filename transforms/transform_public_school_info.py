@@ -44,9 +44,3 @@ def transform_private_schools_contact_information():
         spark.stop()
 
 transform_private_schools_contact_information()
-    
-
-# Cleaning and Transformation steps for publicly_funded_schools_xlsx_september_2020_en
-# 1. City column should be all in Camel Case
-# 2. Change format for the Postal Code
-# 3. School website and Board website column should all be starting with www.
