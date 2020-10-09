@@ -1,38 +1,44 @@
-import os
 from pyspark.sql import SparkSession
-from pyspark.sql import Row
-from pyspark_lib import GenericOperations
+from pyspark.sql.functions import col
+from pyspark_lib import GenericSparkOperations, format_website_link, format_postal_code
+from pyspark_lib import extract_street_name, extract_street_number
 
 shared_volume_path = "/shared_volume/ontario_school_data/"
 spark_master = "spark://spark-master:7077"
-app_name = "DataTransformation"
-files = {"bsa": "boards_schoolauthorities_september_2020_en.csv", \
-        "pubsc": "publicly_funded_schools_xlsx_september_2020_en.csv", \
-        "prsc": "private_schools_contact_information_september_2020_en.csv", \
-        "prscs1": "private_schools_contact_information_september_2020_en_s1.csv"}
 
-spark = GenericOperations(spark_master, app_name)
+files = {"bsa": "boards_schoolauthorities_september_2020_en.csv"}
 
-def transform_private_schools_contact_information():
-    
-# Cleaning and Transformation steps for private_schools_contact_information_september_2020_en
-# 1. School website column should all be starting with www.
-# 2. Split street name and number from the street address column
-# 3. Change format for the Postal Code
-# 4. Website column should all be starting with www.
-# 5. City & Principal Name column should be all in Camel Case
+def transform_boards_information():
+        
+        app_name = "Boards Info Transformation"
+        spark = GenericSparkOperations(spark_master, app_name)
 
+        print("Reading file...")
+        df = spark.read_file(shared_volume_path, files['bsa'])
+        print("Reading complete")
 
-# Cleaning and Transformation steps for boards_schoolauthorities_september_2020_en.csv
-# 1. Split street name and number from the street address column
-# 2. Remove the Suite column
-# 3. Change format for the Postal Code
-# 4. Website column should all be starting with www.
+        # 1. Website column should all be starting with www.
+        df_website_added = df.withColumn('WebsiteN', format_website_link(col('Website')))
+        df_website_removed = df_website_added.drop('Website')
+        df_website_renamed = df_website_removed.withColumnRenamed('WebsiteN', 'Website')
 
-# Cleaning and Transformation steps for private_schools_contact_information_september_2020_en_s1
-# 1. Website column should all be starting with www.
+        # 3. Change format for the Postal Code
+        df_postal_code_formatted = df_website_renamed.withColumn('PostalCode', format_postal_code(col('Postal Code')))
+        df_postal_code_removed = df_postal_code_formatted.drop('Postal Code')
+        df_postal_code_renamed = df_postal_code_removed.withColumnRenamed('PostalCode', 'Postal Code')
 
-# Cleaning and Transformation steps for publicly_funded_schools_xlsx_september_2020_en
-# 1. City column should be all in Camel Case
-# 2. Change format for the Postal Code
-# 3. School website and Board website column should all be starting with www.
+        # 4. Remove the Suite column
+        df_suite_removed = df_postal_code_renamed.drop('Suite')
+
+        # 5. Split street name and number from the street address column
+        df_street_no_added = df_suite_removed.withColumn('Street No', extract_street_number(col('Street')))
+        df_street_name_added = df_street_no_added.withColumn('Street Name', extract_street_name(col('Street')))
+        df_street_addr_removed = df_street_name_added.drop('Street')
+        
+        print("Writing file...")
+        spark.create_file(shared_volume_path, files['bsa'].split(".")[0]+"_transformed", df_street_addr_removed)
+        print("Writing complete")
+
+        spark.stop()
+
+transform_boards_information()
