@@ -1,4 +1,4 @@
-## Docker Assignment-1: 
+
 #  Create a data pipeline architecture using docker-compose yaml file.
 #  Intially architecture comprise of following services:
 #  1. Airflow
@@ -16,7 +16,6 @@ MySQL Service
 - It also must have a new user name and password as `airflow` for the airflow service to communicate
 
 
-## Airflow Assignment-1:
 #  Create a dag for a pipeline to copy the file from the web location to the destination
 
 Goal: To create the initial version of the pipeline where ingestion of the data will take place
