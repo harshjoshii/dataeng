@@ -2,6 +2,7 @@ log/
 data/
 lib/
 bin/
+.vscode/
 
 *.code-workspace
 *.cfg
