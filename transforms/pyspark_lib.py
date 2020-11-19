@@ -1,6 +1,7 @@
 import os
 import re
-from pyspark.sql import SparkSession
+from pyspark import SparkConf
+from pyspark.sql import SparkSession, HiveContext
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import StringType
 
@@ -9,6 +10,8 @@ class GenericSparkOperations:
         self.spark = SparkSession.builder \
                         .master(master) \
                         .appName(app_name) \
+                        .config("hive.metastore.uris", "thrift://hive-server:10000", conf=SparkConf()) \
+                        .enableHiveSupport() \
                         .getOrCreate()
     
     def read_file(self, file_path, file_name):
@@ -29,6 +32,9 @@ class GenericSparkOperations:
             print("There is some problem writing the file")
         else:
             print("File created successfully")
+    
+    def create_hive_table(self, table_name, df):
+        df.write.mode('overwrite').saveAsTable(table_name)
 
     def stop(self):
         self.spark.stop()
