@@ -1,3 +1,7 @@
 log/
 data/
+lib/
+bin/
+
 *.code-workspace
+*.cfg
